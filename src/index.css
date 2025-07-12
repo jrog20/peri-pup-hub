@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  body {
+    background: linear-gradient(to bottom right, #fefefe, #f0f2ff, #f0f8ff);
+    color: #1f2937;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(139, 143, 255, 0.1);
+  }
+  
+  .glass-card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 25px 50px -12px rgba(139, 143, 255, 0.2);
+    transform: scale(1.02);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(to right, #6b6bff, #0ea5e9, #d946ef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(to bottom right, #f0f2ff, #e0f2fe, #fae8ff);
+  }
+  
+  .sophisticated-button {
+    background: linear-gradient(to right, #8b8fff, #0ea5e9);
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(139, 143, 255, 0.2);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .sophisticated-button:hover {
+    background: linear-gradient(to right, #6b6bff, #0284c7);
+    box-shadow: 0 20px 25px -5px rgba(139, 143, 255, 0.3);
+    transform: scale(1.05);
+  }
+  
+  .sophisticated-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(139, 143, 255, 0.2);
+  }
+  
+  .sophisticated-button-secondary {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid #d1d6ff;
+    color: #4a4ac7;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(139, 143, 255, 0.1);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .sophisticated-button-secondary:hover {
+    background: white;
+    box-shadow: 0 20px 25px -5px rgba(139, 143, 255, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .sophisticated-button-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(139, 143, 255, 0.1);
+  }
+  
+  .tab-active {
+    background: linear-gradient(to right, #8b8fff, #0ea5e9);
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(139, 143, 255, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .tab-inactive {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid #d1d6ff;
+    color: #4b5563;
+    transition: all 0.3s ease;
+  }
+  
+  .tab-inactive:hover {
+    color: #6b6bff;
+    background: white;
+    box-shadow: 0 10px 15px -3px rgba(139, 143, 255, 0.1);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d6ff #f0f2ff;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f0f2ff;
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d6ff;
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #b3baff;
+  }
+}
+
+/* Custom animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Enhanced focus states */
+*:focus-visible {
+  @apply outline-none ring-2 ring-periwinkle-400 ring-offset-2;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+  @apply bg-periwinkle-200 text-periwinkle-900;
+}
+
+::-moz-selection {
+  @apply bg-periwinkle-200 text-periwinkle-900;
+}
