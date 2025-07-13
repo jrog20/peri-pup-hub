@@ -1,8 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Heart, Calendar, MapPin } from 'lucide-react';
 
 const PeriPhotoGallery = () => {
   const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Debug: Check image paths on component mount
+  useEffect(() => {
+    console.log('PeriPhotoGallery mounted');
+    console.log('Current window location:', window.location.href);
+    console.log('Available photos:', photos);
+    photos.forEach((photo, index) => {
+      console.log(`Photo ${index + 1}:`, photo.title, 'Path:', photo.image);
+    });
+
+    // Test image loading with multiple images
+    photos.slice(0, 3).forEach((photo, index) => {
+      const testImage = new Image();
+      testImage.onload = () => {
+        console.log(`Test image ${index + 1} loaded successfully:`, photo.image);
+      };
+      testImage.onerror = () => {
+        console.error(`Test image ${index + 1} failed to load:`, photo.image);
+      };
+      testImage.src = photo.image;
+    });
+  }, []);
+
+  // Reset loading state when photo changes
+  useEffect(() => {
+    setImageLoading(true);
+    setImageError(false);
+    setRetryCount(0);
+  }, [currentPhoto]);
 
   const photos = [
     {
@@ -89,33 +121,78 @@ const PeriPhotoGallery = () => {
 
   const nextPhoto = () => {
     setCurrentPhoto((prev) => (prev + 1) % photos.length);
+    setImageLoading(true);
+    setImageError(false);
+    setRetryCount(0);
   };
 
   const prevPhoto = () => {
     setCurrentPhoto((prev) => (prev - 1 + photos.length) % photos.length);
+    setImageLoading(true);
+    setImageError(false);
+    setRetryCount(0);
   };
 
   const goToPhoto = (index) => {
     setCurrentPhoto(index);
+    setImageLoading(true);
+    setImageError(false);
+    setRetryCount(0);
   };
 
   // Function to render photo with fallback
   const renderPhoto = (photo) => {
     if (photo.image) {
       console.log('Loading image:', photo.image);
+      
+      // Set a timeout for image loading
+      const timeoutId = setTimeout(() => {
+        if (imageLoading) {
+          console.warn('Image loading timeout:', photo.image);
+          setImageLoading(false);
+          setImageError(true);
+        }
+      }, 10000); // 10 second timeout
+
       return (
-        <img
-          src={photo.image}
-          alt={photo.title}
-          className="max-w-full max-h-[400px] mx-auto object-contain rounded-lg shadow-lg"
-          onLoad={() => console.log('Image loaded successfully:', photo.image)}
-          onError={(e) => {
-            console.error('Image failed to load:', photo.image);
-            // Fallback to emoji if image fails to load
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
+        <div className="relative">
+          {imageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+                <div className="text-gray-500">Loading image...</div>
+                <div className="text-xs text-gray-400 mt-1">This may take a moment for large images</div>
+              </div>
+            </div>
+          )}
+          <img
+            key={`${photo.id}-${retryCount}`}
+            src={photo.image}
+            alt={photo.title}
+            className={`max-w-full max-h-[400px] mx-auto object-contain rounded-lg shadow-lg transition-opacity duration-300 ${
+              imageLoading ? 'opacity-0' : 'opacity-100'
+            }`}
+            onLoad={() => {
+              console.log('Image loaded successfully:', photo.image);
+              clearTimeout(timeoutId);
+              setImageLoading(false);
+              setImageError(false);
+            }}
+            onError={(e) => {
+              console.error('Image failed to load:', photo.image, 'Error:', e.target.error);
+              console.error('Current window location:', window.location.href);
+              clearTimeout(timeoutId);
+              setImageLoading(false);
+              setImageError(true);
+              // Fallback to emoji if image fails to load
+              e.target.style.display = 'none';
+              const fallback = document.getElementById(`fallback-${photo.id}`);
+              if (fallback) {
+                fallback.style.display = 'flex';
+              }
+            }}
+          />
+        </div>
       );
     }
     return null;
@@ -123,12 +200,30 @@ const PeriPhotoGallery = () => {
 
   // Function to render fallback emoji
   const renderFallback = (photo) => {
+    const handleRetry = () => {
+      setRetryCount(prev => prev + 1);
+      setImageLoading(true);
+      setImageError(false);
+    };
+
     return (
       <div 
         className="w-full h-96 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center"
-        style={{ display: photos[currentPhoto].image ? 'none' : 'flex' }}
+        style={{ display: imageError ? 'flex' : 'none' }}
+        id={`fallback-${photo.id}`}
       >
-        <div className="text-6xl">📷</div>
+        <div className="text-center">
+          <div className="text-6xl mb-4">📷</div>
+          <div className="text-gray-600">Image not available</div>
+          <div className="text-sm text-gray-500 mt-2">{photo.title}</div>
+          <div className="text-xs text-gray-400 mt-1 mb-4">Try refreshing or check your connection</div>
+          <button
+            onClick={handleRetry}
+            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm"
+          >
+            Retry Loading
+          </button>
+        </div>
       </div>
     );
   };
@@ -157,6 +252,12 @@ const PeriPhotoGallery = () => {
             <h3 className="text-2xl font-bold text-purple-600 mb-2">
               {photos[currentPhoto].title}
             </h3>
+            {imageLoading && (
+              <div className="text-sm text-gray-500 mb-2">🔄 Loading image...</div>
+            )}
+            {imageError && (
+              <div className="text-sm text-red-500 mb-2">❌ Image failed to load</div>
+            )}
             <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
               {photos[currentPhoto].description}
             </p>
